@@ -1,28 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  CreateSubset1Item,
-  Subset1Item,
-  UpdateSubset1Item,
-} from './subset1.model';
+  CreateTechItem,
+  TechItem,
+  UpdateTechItem,
+} from './tech.model';
 
 @Injectable()
-export class Subset1Service {
-  private readonly items: Subset1Item[] = [];
+export class TechService {
+  private readonly items: TechItem[] = [];
   private nextId = 1;
 
-  findAll(): Subset1Item[] {
+  findAllTechItems(): TechItem[] {
     return this.items;
   }
 
-  create(item: CreateSubset1Item): Subset1Item {
+  createTechItem(item: CreateTechItem): TechItem {
     const now = new Date().toISOString();
-    const newItem: Subset1Item = {
+    const newItem: TechItem = {
       id: this.nextId,
-      department: 'produce-food',
+      department: 'tech',
       name: item.name,
+      brand: item.brand,
       price: item.price,
+      warrantyMonths: item.warrantyMonths,
       inStock: item.inStock,
-      isPerishable: item.isPerishable,
       createdAt: now,
       updatedAt: now,
     };
@@ -33,23 +34,25 @@ export class Subset1Service {
     return newItem;
   }
 
-  update(id: number, item: UpdateSubset1Item): Subset1Item {
-    const existingItem = this.findById(id);
+  updateTechItem(id: number, item: UpdateTechItem): TechItem {
+    const existingItem = this.findTechItemById(id);
 
     existingItem.name = item.name ?? existingItem.name;
+    existingItem.brand = item.brand ?? existingItem.brand;
     existingItem.price = item.price ?? existingItem.price;
+    existingItem.warrantyMonths =
+      item.warrantyMonths ?? existingItem.warrantyMonths;
     existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.isPerishable = item.isPerishable ?? existingItem.isPerishable;
     existingItem.updatedAt = new Date().toISOString();
 
     return existingItem;
   }
 
-  remove(id: number): Subset1Item {
+  removeTechItem(id: number): TechItem {
     const index = this.items.findIndex((item) => item.id === id);
 
     if (index === -1) {
-      throw new NotFoundException(`Produce or food item ${id} was not found`);
+      throw new NotFoundException(`Tech item ${id} was not found`);
     }
 
     const [removedItem] = this.items.splice(index, 1);
@@ -57,11 +60,11 @@ export class Subset1Service {
     return removedItem;
   }
 
-  private findById(id: number): Subset1Item {
+  private findTechItemById(id: number): TechItem {
     const item = this.items.find((item) => item.id === id);
 
     if (!item) {
-      throw new NotFoundException(`Produce or food item ${id} was not found`);
+      throw new NotFoundException(`Tech item ${id} was not found`);
     }
 
     return item;

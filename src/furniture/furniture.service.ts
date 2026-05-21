@@ -1,27 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  CreateSubset3Item,
-  Subset3Item,
-  UpdateSubset3Item,
-} from './subset3.model';
+  CreateFurnitureItem,
+  FurnitureItem,
+  UpdateFurnitureItem,
+} from './furniture.model';
 
 @Injectable()
-export class Subset3Service {
-  private readonly items: Subset3Item[] = [];
+export class FurnitureService {
+  private readonly items: FurnitureItem[] = [];
   private nextId = 1;
 
-  findAll(): Subset3Item[] {
+  findAllFurnitureItems(): FurnitureItem[] {
     return this.items;
   }
 
-  create(item: CreateSubset3Item): Subset3Item {
+  createFurnitureItem(item: CreateFurnitureItem): FurnitureItem {
     const now = new Date().toISOString();
-    const newItem: Subset3Item = {
+    const newItem: FurnitureItem = {
       id: this.nextId,
-      department: 'clothing',
+      department: 'furniture',
       name: item.name,
-      size: item.size,
-      color: item.color,
+      room: item.room,
+      material: item.material,
       price: item.price,
       inStock: item.inStock,
       createdAt: now,
@@ -34,12 +34,12 @@ export class Subset3Service {
     return newItem;
   }
 
-  update(id: number, item: UpdateSubset3Item): Subset3Item {
-    const existingItem = this.findById(id);
+  updateFurnitureItem(id: number, item: UpdateFurnitureItem): FurnitureItem {
+    const existingItem = this.findFurnitureItemById(id);
 
     existingItem.name = item.name ?? existingItem.name;
-    existingItem.size = item.size ?? existingItem.size;
-    existingItem.color = item.color ?? existingItem.color;
+    existingItem.room = item.room ?? existingItem.room;
+    existingItem.material = item.material ?? existingItem.material;
     existingItem.price = item.price ?? existingItem.price;
     existingItem.inStock = item.inStock ?? existingItem.inStock;
     existingItem.updatedAt = new Date().toISOString();
@@ -47,11 +47,11 @@ export class Subset3Service {
     return existingItem;
   }
 
-  remove(id: number): Subset3Item {
+  removeFurnitureItem(id: number): FurnitureItem {
     const index = this.items.findIndex((item) => item.id === id);
 
     if (index === -1) {
-      throw new NotFoundException(`Clothing item ${id} was not found`);
+      throw new NotFoundException(`Furniture item ${id} was not found`);
     }
 
     const [removedItem] = this.items.splice(index, 1);
@@ -59,11 +59,11 @@ export class Subset3Service {
     return removedItem;
   }
 
-  private findById(id: number): Subset3Item {
+  private findFurnitureItemById(id: number): FurnitureItem {
     const item = this.items.find((item) => item.id === id);
 
     if (!item) {
-      throw new NotFoundException(`Clothing item ${id} was not found`);
+      throw new NotFoundException(`Furniture item ${id} was not found`);
     }
 
     return item;

@@ -1,19 +1,30 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Subset1Module } from './subset1/subset1.module';
-import { Subset2Module } from './subset2/subset2.module';
-import { Subset3Module } from './subset3/subset3.module';
-import { Subset4Module } from './subset4/subset4.module';
-import { Subset5Module } from './subset5/subset5.module';
+import { ProduceFoodModule } from './produce-food/produce-food.module';
+import { TechModule } from './tech/tech.module';
+import { ClothingModule } from './clothing/clothing.module';
+import { LifestyleModule } from './lifestyle/lifestyle.module';
+import { FurnitureModule } from './furniture/furniture.module';
+import { MongooseModule } from '@nestjs/mongoose';
+
+const databaseImports =
+  process.env.NODE_ENV === 'test'
+    ? []
+    : [
+        MongooseModule.forRoot(
+          'mongodb+srv://new-user:4ip72vondyDBCy2c@cluster0.s0upaf7.mongodb.net/Final',
+        ),
+      ];
 
 @Module({
   imports: [
-    Subset1Module,
-    Subset2Module,
-    Subset3Module,
-    Subset4Module,
-    Subset5Module,
+    ...databaseImports,
+    ProduceFoodModule,
+    TechModule,
+    ClothingModule,
+    LifestyleModule,
+    FurnitureModule,
   ],
   controllers: [AppController],
   providers: [AppService],

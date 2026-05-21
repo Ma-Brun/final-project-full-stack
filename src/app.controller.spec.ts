@@ -17,7 +17,7 @@ describe('AppController', () => {
   describe('root', () => {
     it('should return the store overview', () => {
       expect(appController.getStoreOverview()).toEqual({
-        storeName: 'Target',
+        storeName: 'Muncher store',
         message: 'Welcome to the main store handler.',
         departments: [
           'produce-food',

@@ -10,7 +10,7 @@ export interface StoreOverview {
 export class AppService {
   getStoreOverview(): StoreOverview {
     return {
-      storeName: 'Target',
+      storeName: 'Muncher store',
       message: 'Welcome to the main store handler.',
       departments: [
         'produce-food',

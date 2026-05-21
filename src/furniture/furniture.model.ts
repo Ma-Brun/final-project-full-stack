@@ -1,4 +1,4 @@
-export interface Subset5Item {
+export interface FurnitureItem {
   id: number;
   department: 'furniture';
   name: string;
@@ -10,9 +10,9 @@ export interface Subset5Item {
   updatedAt: string;
 }
 
-export type CreateSubset5Item = Pick<
-  Subset5Item,
+export type CreateFurnitureItem = Pick<
+  FurnitureItem,
   'name' | 'room' | 'material' | 'price' | 'inStock'
 >;
 
-export type UpdateSubset5Item = Partial<CreateSubset5Item>;
+export type UpdateFurnitureItem = Partial<CreateFurnitureItem>;

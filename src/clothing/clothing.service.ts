@@ -1,28 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  CreateSubset2Item,
-  Subset2Item,
-  UpdateSubset2Item,
-} from './subset2.model';
+  CreateClothingItem,
+  ClothingItem,
+  UpdateClothingItem,
+} from './clothing.model';
 
 @Injectable()
-export class Subset2Service {
-  private readonly items: Subset2Item[] = [];
+export class ClothingService {
+  private readonly items: ClothingItem[] = [];
   private nextId = 1;
 
-  findAll(): Subset2Item[] {
+  findAllClothingItems(): ClothingItem[] {
     return this.items;
   }
 
-  create(item: CreateSubset2Item): Subset2Item {
+  createClothingItem(item: CreateClothingItem): ClothingItem {
     const now = new Date().toISOString();
-    const newItem: Subset2Item = {
+    const newItem: ClothingItem = {
       id: this.nextId,
-      department: 'tech',
+      department: 'clothing',
       name: item.name,
-      brand: item.brand,
+      size: item.size,
+      color: item.color,
       price: item.price,
-      warrantyMonths: item.warrantyMonths,
       inStock: item.inStock,
       createdAt: now,
       updatedAt: now,
@@ -34,25 +34,24 @@ export class Subset2Service {
     return newItem;
   }
 
-  update(id: number, item: UpdateSubset2Item): Subset2Item {
-    const existingItem = this.findById(id);
+  updateClothingItem(id: number, item: UpdateClothingItem): ClothingItem {
+    const existingItem = this.findClothingItemById(id);
 
     existingItem.name = item.name ?? existingItem.name;
-    existingItem.brand = item.brand ?? existingItem.brand;
+    existingItem.size = item.size ?? existingItem.size;
+    existingItem.color = item.color ?? existingItem.color;
     existingItem.price = item.price ?? existingItem.price;
-    existingItem.warrantyMonths =
-      item.warrantyMonths ?? existingItem.warrantyMonths;
     existingItem.inStock = item.inStock ?? existingItem.inStock;
     existingItem.updatedAt = new Date().toISOString();
 
     return existingItem;
   }
 
-  remove(id: number): Subset2Item {
+  removeClothingItem(id: number): ClothingItem {
     const index = this.items.findIndex((item) => item.id === id);
 
     if (index === -1) {
-      throw new NotFoundException(`Tech item ${id} was not found`);
+      throw new NotFoundException(`Clothing item ${id} was not found`);
     }
 
     const [removedItem] = this.items.splice(index, 1);
@@ -60,11 +59,11 @@ export class Subset2Service {
     return removedItem;
   }
 
-  private findById(id: number): Subset2Item {
+  private findClothingItemById(id: number): ClothingItem {
     const item = this.items.find((item) => item.id === id);
 
     if (!item) {
-      throw new NotFoundException(`Tech item ${id} was not found`);
+      throw new NotFoundException(`Clothing item ${id} was not found`);
     }
 
     return item;

@@ -1,28 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  CreateSubset4Item,
-  Subset4Item,
-  UpdateSubset4Item,
-} from './subset4.model';
+  CreateProduceFoodItem,
+  ProduceFoodItem,
+  UpdateProduceFoodItem,
+} from './produce-food.model';
 
 @Injectable()
-export class Subset4Service {
-  private readonly items: Subset4Item[] = [];
+export class ProduceFoodService {
+  private readonly items: ProduceFoodItem[] = [];
   private nextId = 1;
 
-  findAll(): Subset4Item[] {
+  findAllProduceFoodItems(): ProduceFoodItem[] {
     return this.items;
   }
 
-  create(item: CreateSubset4Item): Subset4Item {
+  createProduceFoodItem(item: CreateProduceFoodItem): ProduceFoodItem {
     const now = new Date().toISOString();
-    const newItem: Subset4Item = {
+    const newItem: ProduceFoodItem = {
       id: this.nextId,
-      department: 'lifestyle',
+      department: 'produce-food',
       name: item.name,
-      useCase: item.useCase,
       price: item.price,
       inStock: item.inStock,
+      isPerishable: item.isPerishable,
       createdAt: now,
       updatedAt: now,
     };
@@ -33,23 +33,26 @@ export class Subset4Service {
     return newItem;
   }
 
-  update(id: number, item: UpdateSubset4Item): Subset4Item {
-    const existingItem = this.findById(id);
+  updateProduceFoodItem(
+    id: number,
+    item: UpdateProduceFoodItem,
+  ): ProduceFoodItem {
+    const existingItem = this.findProduceFoodItemById(id);
 
     existingItem.name = item.name ?? existingItem.name;
-    existingItem.useCase = item.useCase ?? existingItem.useCase;
     existingItem.price = item.price ?? existingItem.price;
     existingItem.inStock = item.inStock ?? existingItem.inStock;
+    existingItem.isPerishable = item.isPerishable ?? existingItem.isPerishable;
     existingItem.updatedAt = new Date().toISOString();
 
     return existingItem;
   }
 
-  remove(id: number): Subset4Item {
+  removeProduceFoodItem(id: number): ProduceFoodItem {
     const index = this.items.findIndex((item) => item.id === id);
 
     if (index === -1) {
-      throw new NotFoundException(`Lifestyle item ${id} was not found`);
+      throw new NotFoundException(`Produce or food item ${id} was not found`);
     }
 
     const [removedItem] = this.items.splice(index, 1);
@@ -57,11 +60,11 @@ export class Subset4Service {
     return removedItem;
   }
 
-  private findById(id: number): Subset4Item {
+  private findProduceFoodItemById(id: number): ProduceFoodItem {
     const item = this.items.find((item) => item.id === id);
 
     if (!item) {
-      throw new NotFoundException(`Lifestyle item ${id} was not found`);
+      throw new NotFoundException(`Produce or food item ${id} was not found`);
     }
 
     return item;

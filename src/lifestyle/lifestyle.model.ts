@@ -1,4 +1,4 @@
-export interface Subset4Item {
+export interface LifestyleItem {
   id: number;
   department: 'lifestyle';
   name: string;
@@ -9,9 +9,9 @@ export interface Subset4Item {
   updatedAt: string;
 }
 
-export type CreateSubset4Item = Pick<
-  Subset4Item,
+export type CreateLifestyleItem = Pick<
+  LifestyleItem,
   'name' | 'useCase' | 'price' | 'inStock'
 >;
 
-export type UpdateSubset4Item = Partial<CreateSubset4Item>;
+export type UpdateLifestyleItem = Partial<CreateLifestyleItem>;
