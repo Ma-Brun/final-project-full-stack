@@ -28,6 +28,16 @@ export class ClothingController {
     return this.clothingService.RandomClothingItem();
   }
 
+  @Get('name/:name')
+  findClothingByName(@Param('name') name: string): Promise<ClothingItem[]> {
+    return this.clothingService.findClothingByName(name);
+  }
+
+  @Get('in-stock')
+  findInStockClothingItems(): Promise<ClothingItem[]> {
+    return this.clothingService.findInStockClothingItems();
+  }
+
   @Get(':id')
   findClothingByID(@Param('id') id: string): Promise<ClothingItem> {
     return this.clothingService.findClothingByID(id);
@@ -44,6 +54,19 @@ export class ClothingController {
     @Body() item: UpdateClothingItem,
   ): Promise<ClothingItem> {
     return this.clothingService.updateClothingItem(id, item);
+  }
+
+  @Patch('name/:name')
+  updateByName(
+    @Param('name') name: string,
+    @Body() item: UpdateClothingItem,
+  ): Promise<ClothingItem[]> {
+    return this.clothingService.updateClothingItemsByName(name, item);
+  }
+
+  @Delete('name/:name')
+  removeClothingItemsByName(@Param('name') name: string): Promise<ClothingItem[]> {
+    return this.clothingService.removeClothingItemsByName(name);
   }
 
   @Delete(':id')

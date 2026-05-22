@@ -28,6 +28,16 @@ export class FurnitureController {
     return this.furnitureService.randomFurnitureItem();
   }
 
+  @Get('name/:name')
+  findFurnitureByName(@Param('name') name: string): Promise<FurnitureItem[]> {
+    return this.furnitureService.findFurnitureByName(name);
+  }
+
+  @Get('in-stock')
+  findInStockFurnitureItems(): Promise<FurnitureItem[]> {
+    return this.furnitureService.findInStockFurnitureItems();
+  }
+
   @Get(':id')
   findFurnitureByID(@Param('id') id: string): Promise<FurnitureItem> {
     return this.furnitureService.findFurnitureByID(id);
@@ -44,6 +54,21 @@ export class FurnitureController {
     @Body() item: UpdateFurnitureItem,
   ): Promise<FurnitureItem> {
     return this.furnitureService.updateFurnitureItem(id, item);
+  }
+
+  @Patch('name/:name')
+  updateByName(
+    @Param('name') name: string,
+    @Body() item: UpdateFurnitureItem,
+  ): Promise<FurnitureItem[]> {
+    return this.furnitureService.updateFurnitureItemsByName(name, item);
+  }
+
+  @Delete('name/:name')
+  removeFurnitureItemsByName(
+    @Param('name') name: string,
+  ): Promise<FurnitureItem[]> {
+    return this.furnitureService.removeFurnitureItemsByName(name);
   }
 
   @Delete(':id')

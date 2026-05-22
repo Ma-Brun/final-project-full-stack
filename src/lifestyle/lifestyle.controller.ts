@@ -28,6 +28,16 @@ export class LifestyleController {
     return this.lifestyleService.randomLifestyleItem();
   }
 
+  @Get('name/:name')
+  findLifestyleByName(@Param('name') name: string): Promise<LifestyleItem[]> {
+    return this.lifestyleService.findLifestyleByName(name);
+  }
+
+  @Get('in-stock')
+  findInStockLifestyleItems(): Promise<LifestyleItem[]> {
+    return this.lifestyleService.findInStockLifestyleItems();
+  }
+
   @Get(':id')
   findLifestyleByID(@Param('id') id: string): Promise<LifestyleItem> {
     return this.lifestyleService.findLifestyleByID(id);
@@ -44,6 +54,21 @@ export class LifestyleController {
     @Body() item: UpdateLifestyleItem,
   ): Promise<LifestyleItem> {
     return this.lifestyleService.updateLifestyleItem(id, item);
+  }
+
+  @Patch('name/:name')
+  updateByName(
+    @Param('name') name: string,
+    @Body() item: UpdateLifestyleItem,
+  ): Promise<LifestyleItem[]> {
+    return this.lifestyleService.updateLifestyleItemsByName(name, item);
+  }
+
+  @Delete('name/:name')
+  removeLifestyleItemsByName(
+    @Param('name') name: string,
+  ): Promise<LifestyleItem[]> {
+    return this.lifestyleService.removeLifestyleItemsByName(name);
   }
 
   @Delete(':id')

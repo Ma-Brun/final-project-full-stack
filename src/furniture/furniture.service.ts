@@ -37,6 +37,23 @@ export class FurnitureService {
     return this.requireFurnitureItem(existingItem, id);
   }
 
+  async updateFurnitureItemsByName(
+    name: string,
+    item: UpdateFurnitureItem,
+  ): Promise<FurnitureItem[]> {
+    const existingItems = await this.furnitureModel.find({ name }).exec();
+
+    if (existingItems.length === 0) {
+      throw new NotFoundException(`No furniture items named ${name} were found`);
+    }
+
+    await this.furnitureModel.updateMany({ name }, item, {
+      runValidators: true,
+    });
+
+    return this.furnitureModel.find({ name: item.name ?? name }).exec();
+  }
+
   async findFurnitureByID(id: string): Promise<FurnitureItem> {
     const item = await this.furnitureModel.findById(id).exec();
 
@@ -54,10 +71,42 @@ export class FurnitureService {
     return items[randomIndex];
   }
 
+  async findFurnitureByName(name: string): Promise<FurnitureItem[]> {
+    const items = await this.furnitureModel.find({ name }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException(`No furniture items named ${name} were found`);
+    }
+
+    return items;
+  }
+
+  async findInStockFurnitureItems(): Promise<FurnitureItem[]> {
+    const items = await this.furnitureModel.find({ inStock: true }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No in-stock furniture items found');
+    }
+
+    return items;
+  }
+
   async removeFurnitureItem(id: string): Promise<FurnitureItem> {
     const removedItem = await this.furnitureModel.findByIdAndDelete(id).exec();
 
     return this.requireFurnitureItem(removedItem, id);
+  }
+
+  async removeFurnitureItemsByName(name: string): Promise<FurnitureItem[]> {
+    const removedItems = await this.furnitureModel.find({ name }).exec();
+
+    if (removedItems.length === 0) {
+      throw new NotFoundException(`No furniture items named ${name} were found`);
+    }
+
+    await this.furnitureModel.deleteMany({ name }).exec();
+
+    return removedItems;
   }
 
   private requireFurnitureItem(

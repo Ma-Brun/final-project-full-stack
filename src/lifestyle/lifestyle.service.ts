@@ -37,6 +37,23 @@ export class LifestyleService {
     return this.requireLifestyleItem(existingItem, id);
   }
 
+  async updateLifestyleItemsByName(
+    name: string,
+    item: UpdateLifestyleItem,
+  ): Promise<LifestyleItem[]> {
+    const existingItems = await this.lifestyleModel.find({ name }).exec();
+
+    if (existingItems.length === 0) {
+      throw new NotFoundException(`No lifestyle items named ${name} were found`);
+    }
+
+    await this.lifestyleModel.updateMany({ name }, item, {
+      runValidators: true,
+    });
+
+    return this.lifestyleModel.find({ name: item.name ?? name }).exec();
+  }
+
   async findLifestyleByID(id: string): Promise<LifestyleItem> {
     const item = await this.lifestyleModel.findById(id).exec();
 
@@ -54,10 +71,42 @@ export class LifestyleService {
     return items[randomIndex];
   }
 
+  async findLifestyleByName(name: string): Promise<LifestyleItem[]> {
+    const items = await this.lifestyleModel.find({ name }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException(`No lifestyle items named ${name} were found`);
+    }
+
+    return items;
+  }
+
+  async findInStockLifestyleItems(): Promise<LifestyleItem[]> {
+    const items = await this.lifestyleModel.find({ inStock: true }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No in-stock lifestyle items found');
+    }
+
+    return items;
+  }
+
   async removeLifestyleItem(id: string): Promise<LifestyleItem> {
     const removedItem = await this.lifestyleModel.findByIdAndDelete(id).exec();
 
     return this.requireLifestyleItem(removedItem, id);
+  }
+
+  async removeLifestyleItemsByName(name: string): Promise<LifestyleItem[]> {
+    const removedItems = await this.lifestyleModel.find({ name }).exec();
+
+    if (removedItems.length === 0) {
+      throw new NotFoundException(`No lifestyle items named ${name} were found`);
+    }
+
+    await this.lifestyleModel.deleteMany({ name }).exec();
+
+    return removedItems;
   }
 
   private requireLifestyleItem(

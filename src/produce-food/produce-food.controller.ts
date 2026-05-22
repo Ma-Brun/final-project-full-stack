@@ -28,6 +28,18 @@ export class ProduceFoodController {
     return this.produceFoodService.randomProduceFoodItem();
   }
 
+  @Get('name/:name')
+  findProduceFoodByName(
+    @Param('name') name: string,
+  ): Promise<ProduceFoodItem[]> {
+    return this.produceFoodService.findProduceFoodByName(name);
+  }
+
+  @Get('in-stock')
+  findInStockProduceFoodItems(): Promise<ProduceFoodItem[]> {
+    return this.produceFoodService.findInStockProduceFoodItems();
+  }
+
   @Get(':id')
   findProduceFoodByID(@Param('id') id: string): Promise<ProduceFoodItem> {
     return this.produceFoodService.findProduceFoodByID(id);
@@ -46,6 +58,21 @@ export class ProduceFoodController {
     @Body() item: UpdateProduceFoodItem,
   ): Promise<ProduceFoodItem> {
     return this.produceFoodService.updateProduceFoodItem(id, item);
+  }
+
+  @Patch('name/:name')
+  updateByName(
+    @Param('name') name: string,
+    @Body() item: UpdateProduceFoodItem,
+  ): Promise<ProduceFoodItem[]> {
+    return this.produceFoodService.updateProduceFoodItemsByName(name, item);
+  }
+
+  @Delete('name/:name')
+  removeProduceFoodItemsByName(
+    @Param('name') name: string,
+  ): Promise<ProduceFoodItem[]> {
+    return this.produceFoodService.removeProduceFoodItemsByName(name);
   }
 
   @Delete(':id')

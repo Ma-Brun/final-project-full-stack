@@ -28,6 +28,16 @@ export class TechController {
     return this.techService.randomTechItem();
   }
 
+  @Get('name/:name')
+  findTechByName(@Param('name') name: string): Promise<TechItem[]> {
+    return this.techService.findTechByName(name);
+  }
+
+  @Get('in-stock')
+  findInStockTechItems(): Promise<TechItem[]> {
+    return this.techService.findInStockTechItems();
+  }
+
   @Get(':id')
   findTechByID(@Param('id') id: string): Promise<TechItem> {
     return this.techService.findTechByID(id);
@@ -44,6 +54,19 @@ export class TechController {
     @Body() item: UpdateTechItem,
   ): Promise<TechItem> {
     return this.techService.updateTechItem(id, item);
+  }
+
+  @Patch('name/:name')
+  updateByName(
+    @Param('name') name: string,
+    @Body() item: UpdateTechItem,
+  ): Promise<TechItem[]> {
+    return this.techService.updateTechItemsByName(name, item);
+  }
+
+  @Delete('name/:name')
+  removeTechItemsByName(@Param('name') name: string): Promise<TechItem[]> {
+    return this.techService.removeTechItemsByName(name);
   }
 
   @Delete(':id')

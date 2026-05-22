@@ -39,6 +39,25 @@ export class ProduceFoodService {
     return this.requireProduceFoodItem(existingItem, id);
   }
 
+  async updateProduceFoodItemsByName(
+    name: string,
+    item: UpdateProduceFoodItem,
+  ): Promise<ProduceFoodItem[]> {
+    const existingItems = await this.produceFoodModel.find({ name }).exec();
+
+    if (existingItems.length === 0) {
+      throw new NotFoundException(
+        `No produce or food items named ${name} were found`,
+      );
+    }
+
+    await this.produceFoodModel.updateMany({ name }, item, {
+      runValidators: true,
+    });
+
+    return this.produceFoodModel.find({ name: item.name ?? name }).exec();
+  }
+
   async findProduceFoodByID(id: string): Promise<ProduceFoodItem> {
     const item = await this.produceFoodModel.findById(id).exec();
 
@@ -56,12 +75,50 @@ export class ProduceFoodService {
     return items[randomIndex];
   }
 
+  async findProduceFoodByName(name: string): Promise<ProduceFoodItem[]> {
+    const items = await this.produceFoodModel.find({ name }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException(
+        `No produce or food items named ${name} were found`,
+      );
+    }
+
+    return items;
+  }
+
+  async findInStockProduceFoodItems(): Promise<ProduceFoodItem[]> {
+    const items = await this.produceFoodModel.find({ inStock: true }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No in-stock produce or food items found');
+    }
+
+    return items;
+  }
+
   async removeProduceFoodItem(id: string): Promise<ProduceFoodItem> {
     const removedItem = await this.produceFoodModel
       .findByIdAndDelete(id)
       .exec();
 
     return this.requireProduceFoodItem(removedItem, id);
+  }
+
+  async removeProduceFoodItemsByName(
+    name: string,
+  ): Promise<ProduceFoodItem[]> {
+    const removedItems = await this.produceFoodModel.find({ name }).exec();
+
+    if (removedItems.length === 0) {
+      throw new NotFoundException(
+        `No produce or food items named ${name} were found`,
+      );
+    }
+
+    await this.produceFoodModel.deleteMany({ name }).exec();
+
+    return removedItems;
   }
 
   private requireProduceFoodItem(

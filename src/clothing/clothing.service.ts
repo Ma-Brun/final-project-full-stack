@@ -37,6 +37,23 @@ export class ClothingService {
     return this.requireClothingItem(existingItem, id);
   }
 
+  async updateClothingItemsByName(
+    name: string,
+    item: UpdateClothingItem,
+  ): Promise<ClothingItem[]> {
+    const existingItems = await this.clothingModel.find({ name }).exec();
+
+    if (existingItems.length === 0) {
+      throw new NotFoundException(`No clothing items named ${name} were found`);
+    }
+
+    await this.clothingModel.updateMany({ name }, item, {
+      runValidators: true,
+    });
+
+    return this.clothingModel.find({ name: item.name ?? name }).exec();
+  }
+
   async findClothingByID(id: string): Promise<ClothingItem> {
     const item = await this.clothingModel.findById(id).exec();
 
@@ -54,10 +71,42 @@ export class ClothingService {
     return items[randomIndex];
   }
 
+  async findClothingByName(name: string): Promise<ClothingItem[]> {
+    const items = await this.clothingModel.find({ name }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException(`No clothing items named ${name} were found`);
+    }
+
+    return items;
+  }
+
+  async findInStockClothingItems(): Promise<ClothingItem[]> {
+    const items = await this.clothingModel.find({ inStock: true }).exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No in-stock clothing items found');
+    }
+
+    return items;
+  }
+
   async removeClothingItem(id: string): Promise<ClothingItem> {
     const removedItem = await this.clothingModel.findByIdAndDelete(id).exec();
 
     return this.requireClothingItem(removedItem, id);
+  }
+
+  async removeClothingItemsByName(name: string): Promise<ClothingItem[]> {
+    const removedItems = await this.clothingModel.find({ name }).exec();
+
+    if (removedItems.length === 0) {
+      throw new NotFoundException(`No clothing items named ${name} were found`);
+    }
+
+    await this.clothingModel.deleteMany({ name }).exec();
+
+    return removedItems;
   }
 
   private requireClothingItem(
