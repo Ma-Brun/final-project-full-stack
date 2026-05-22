@@ -1,68 +1,63 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   CreateTechItem,
+  TechDocument,
   TechItem,
   UpdateTechItem,
 } from './tech.model';
 
 @Injectable()
 export class TechService {
-  private readonly items: TechItem[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectModel(TechItem.name)
+    private readonly techModel: Model<TechDocument>,
+  ) {}
 
-  findAllTechItems(): TechItem[] {
-    return this.items;
+  findAllTechItems(): Promise<TechItem[]> {
+    return this.techModel.find().exec();
   }
 
-  createTechItem(item: CreateTechItem): TechItem {
-    const now = new Date().toISOString();
-    const newItem: TechItem = {
-      id: this.nextId,
+  async createTechItem(item: CreateTechItem): Promise<TechItem> {
+    return this.techModel.create({
       department: 'tech',
-      name: item.name,
-      brand: item.brand,
-      price: item.price,
-      warrantyMonths: item.warrantyMonths,
-      inStock: item.inStock,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.nextId += 1;
-    this.items.push(newItem);
-
-    return newItem;
+      ...item,
+    });
   }
 
-  updateTechItem(id: number, item: UpdateTechItem): TechItem {
-    const existingItem = this.findTechItemById(id);
+  async updateTechItem(id: string, item: UpdateTechItem): Promise<TechItem> {
+    const existingItem = await this.techModel
+      .findByIdAndUpdate(id, item, { new: true, runValidators: true })
+      .exec();
 
-    existingItem.name = item.name ?? existingItem.name;
-    existingItem.brand = item.brand ?? existingItem.brand;
-    existingItem.price = item.price ?? existingItem.price;
-    existingItem.warrantyMonths =
-      item.warrantyMonths ?? existingItem.warrantyMonths;
-    existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.updatedAt = new Date().toISOString();
-
-    return existingItem;
+    return this.requireTechItem(existingItem, id);
   }
 
-  removeTechItem(id: number): TechItem {
-    const index = this.items.findIndex((item) => item.id === id);
+  async findTechByID(id: string): Promise<TechItem> {
+    const item = await this.techModel.findById(id).exec();
 
-    if (index === -1) {
-      throw new NotFoundException(`Tech item ${id} was not found`);
+    return this.requireTechItem(item, id);
+  }
+
+  async randomTechItem(): Promise<TechItem> {
+    const items = await this.techModel.find().exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No tech items found');
     }
 
-    const [removedItem] = this.items.splice(index, 1);
-
-    return removedItem;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
   }
 
-  private findTechItemById(id: number): TechItem {
-    const item = this.items.find((item) => item.id === id);
+  async removeTechItem(id: string): Promise<TechItem> {
+    const removedItem = await this.techModel.findByIdAndDelete(id).exec();
 
+    return this.requireTechItem(removedItem, id);
+  }
+
+  private requireTechItem(item: TechDocument | null, id: string): TechItem {
     if (!item) {
       throw new NotFoundException(`Tech item ${id} was not found`);
     }

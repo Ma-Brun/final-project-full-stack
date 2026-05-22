@@ -1,68 +1,73 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   CreateProduceFoodItem,
+  ProduceFoodDocument,
   ProduceFoodItem,
   UpdateProduceFoodItem,
 } from './produce-food.model';
 
 @Injectable()
 export class ProduceFoodService {
-  private readonly items: ProduceFoodItem[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectModel(ProduceFoodItem.name)
+    private readonly produceFoodModel: Model<ProduceFoodDocument>,
+  ) {}
 
-  findAllProduceFoodItems(): ProduceFoodItem[] {
-    return this.items;
+  findAllProduceFoodItems(): Promise<ProduceFoodItem[]> {
+    return this.produceFoodModel.find().exec();
   }
 
-  createProduceFoodItem(item: CreateProduceFoodItem): ProduceFoodItem {
-    const now = new Date().toISOString();
-    const newItem: ProduceFoodItem = {
-      id: this.nextId,
+  async createProduceFoodItem(
+    item: CreateProduceFoodItem,
+  ): Promise<ProduceFoodItem> {
+    return this.produceFoodModel.create({
       department: 'produce-food',
-      name: item.name,
-      price: item.price,
-      inStock: item.inStock,
-      isPerishable: item.isPerishable,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.nextId += 1;
-    this.items.push(newItem);
-
-    return newItem;
+      ...item,
+    });
   }
 
-  updateProduceFoodItem(
-    id: number,
+  async updateProduceFoodItem(
+    id: string,
     item: UpdateProduceFoodItem,
-  ): ProduceFoodItem {
-    const existingItem = this.findProduceFoodItemById(id);
+  ): Promise<ProduceFoodItem> {
+    const existingItem = await this.produceFoodModel
+      .findByIdAndUpdate(id, item, { new: true, runValidators: true })
+      .exec();
 
-    existingItem.name = item.name ?? existingItem.name;
-    existingItem.price = item.price ?? existingItem.price;
-    existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.isPerishable = item.isPerishable ?? existingItem.isPerishable;
-    existingItem.updatedAt = new Date().toISOString();
-
-    return existingItem;
+    return this.requireProduceFoodItem(existingItem, id);
   }
 
-  removeProduceFoodItem(id: number): ProduceFoodItem {
-    const index = this.items.findIndex((item) => item.id === id);
+  async findProduceFoodByID(id: string): Promise<ProduceFoodItem> {
+    const item = await this.produceFoodModel.findById(id).exec();
 
-    if (index === -1) {
-      throw new NotFoundException(`Produce or food item ${id} was not found`);
+    return this.requireProduceFoodItem(item, id);
+  }
+
+  async randomProduceFoodItem(): Promise<ProduceFoodItem> {
+    const items = await this.produceFoodModel.find().exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No produce or food items found');
     }
 
-    const [removedItem] = this.items.splice(index, 1);
-
-    return removedItem;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
   }
 
-  private findProduceFoodItemById(id: number): ProduceFoodItem {
-    const item = this.items.find((item) => item.id === id);
+  async removeProduceFoodItem(id: string): Promise<ProduceFoodItem> {
+    const removedItem = await this.produceFoodModel
+      .findByIdAndDelete(id)
+      .exec();
 
+    return this.requireProduceFoodItem(removedItem, id);
+  }
+
+  private requireProduceFoodItem(
+    item: ProduceFoodDocument | null,
+    id: string,
+  ): ProduceFoodItem {
     if (!item) {
       throw new NotFoundException(`Produce or food item ${id} was not found`);
     }

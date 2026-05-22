@@ -19,12 +19,22 @@ export class TechController {
   constructor(private readonly techService: TechService) {}
 
   @Get()
-  findAllTechItems(): TechItem[] {
+  findAllTechItems(): Promise<TechItem[]> {
     return this.techService.findAllTechItems();
   }
 
+  @Get('random')
+  getRandomTechItem(): Promise<TechItem> {
+    return this.techService.randomTechItem();
+  }
+
+  @Get(':id')
+  findTechByID(@Param('id') id: string): Promise<TechItem> {
+    return this.techService.findTechByID(id);
+  }
+
   @Post()
-  createTechItem(@Body() item: CreateTechItem): TechItem {
+  createTechItem(@Body() item: CreateTechItem): Promise<TechItem> {
     return this.techService.createTechItem(item);
   }
 
@@ -32,12 +42,12 @@ export class TechController {
   update(
     @Param('id') id: string,
     @Body() item: UpdateTechItem,
-  ): TechItem {
-    return this.techService.updateTechItem(Number(id), item);
+  ): Promise<TechItem> {
+    return this.techService.updateTechItem(id, item);
   }
 
   @Delete(':id')
-  removeTechItem(@Param('id') id: string): TechItem {
-    return this.techService.removeTechItem(Number(id));
+  removeTechItem(@Param('id') id: string): Promise<TechItem> {
+    return this.techService.removeTechItem(id);
   }
 }

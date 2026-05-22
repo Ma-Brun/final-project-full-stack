@@ -1,65 +1,69 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   CreateLifestyleItem,
+  LifestyleDocument,
   LifestyleItem,
   UpdateLifestyleItem,
 } from './lifestyle.model';
 
 @Injectable()
 export class LifestyleService {
-  private readonly items: LifestyleItem[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectModel(LifestyleItem.name)
+    private readonly lifestyleModel: Model<LifestyleDocument>,
+  ) {}
 
-  findAllLifestyleItems(): LifestyleItem[] {
-    return this.items;
+  findAllLifestyleItems(): Promise<LifestyleItem[]> {
+    return this.lifestyleModel.find().exec();
   }
 
-  createLifestyleItem(item: CreateLifestyleItem): LifestyleItem {
-    const now = new Date().toISOString();
-    const newItem: LifestyleItem = {
-      id: this.nextId,
+  async createLifestyleItem(item: CreateLifestyleItem): Promise<LifestyleItem> {
+    return this.lifestyleModel.create({
       department: 'lifestyle',
-      name: item.name,
-      useCase: item.useCase,
-      price: item.price,
-      inStock: item.inStock,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.nextId += 1;
-    this.items.push(newItem);
-
-    return newItem;
+      ...item,
+    });
   }
 
-  updateLifestyleItem(id: number, item: UpdateLifestyleItem): LifestyleItem {
-    const existingItem = this.findLifestyleItemById(id);
+  async updateLifestyleItem(
+    id: string,
+    item: UpdateLifestyleItem,
+  ): Promise<LifestyleItem> {
+    const existingItem = await this.lifestyleModel
+      .findByIdAndUpdate(id, item, { new: true, runValidators: true })
+      .exec();
 
-    existingItem.name = item.name ?? existingItem.name;
-    existingItem.useCase = item.useCase ?? existingItem.useCase;
-    existingItem.price = item.price ?? existingItem.price;
-    existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.updatedAt = new Date().toISOString();
-
-    return existingItem;
+    return this.requireLifestyleItem(existingItem, id);
   }
 
-  removeLifestyleItem(id: number): LifestyleItem {
-    const index = this.items.findIndex((item) => item.id === id);
+  async findLifestyleByID(id: string): Promise<LifestyleItem> {
+    const item = await this.lifestyleModel.findById(id).exec();
 
-    if (index === -1) {
-      throw new NotFoundException(`Lifestyle item ${id} was not found`);
+    return this.requireLifestyleItem(item, id);
+  }
+
+  async randomLifestyleItem(): Promise<LifestyleItem> {
+    const items = await this.lifestyleModel.find().exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No lifestyle items found');
     }
 
-    const [removedItem] = this.items.splice(index, 1);
-
-    return removedItem;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
   }
 
-  private findLifestyleItemById(id: number): LifestyleItem {
-    const item = this.items.find((item) => item.id === id);
+  async removeLifestyleItem(id: string): Promise<LifestyleItem> {
+    const removedItem = await this.lifestyleModel.findByIdAndDelete(id).exec();
 
+    return this.requireLifestyleItem(removedItem, id);
+  }
+
+  private requireLifestyleItem(
+    item: LifestyleDocument | null,
+    id: string,
+  ): LifestyleItem {
     if (!item) {
       throw new NotFoundException(`Lifestyle item ${id} was not found`);
     }

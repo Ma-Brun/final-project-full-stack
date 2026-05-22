@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
+  FurnitureDocument,
   CreateFurnitureItem,
   FurnitureItem,
   UpdateFurnitureItem,
@@ -7,61 +10,60 @@ import {
 
 @Injectable()
 export class FurnitureService {
-  private readonly items: FurnitureItem[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectModel(FurnitureItem.name)
+    private readonly furnitureModel: Model<FurnitureDocument>,
+  ) {}
 
-  findAllFurnitureItems(): FurnitureItem[] {
-    return this.items;
+  findAllFurnitureItems(): Promise<FurnitureItem[]> {
+    return this.furnitureModel.find().exec();
   }
 
-  createFurnitureItem(item: CreateFurnitureItem): FurnitureItem {
-    const now = new Date().toISOString();
-    const newItem: FurnitureItem = {
-      id: this.nextId,
+  async createFurnitureItem(item: CreateFurnitureItem): Promise<FurnitureItem> {
+    return this.furnitureModel.create({
       department: 'furniture',
-      name: item.name,
-      room: item.room,
-      material: item.material,
-      price: item.price,
-      inStock: item.inStock,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.nextId += 1;
-    this.items.push(newItem);
-
-    return newItem;
+      ...item,
+    });
   }
 
-  updateFurnitureItem(id: number, item: UpdateFurnitureItem): FurnitureItem {
-    const existingItem = this.findFurnitureItemById(id);
+  async updateFurnitureItem(
+    id: string,
+    item: UpdateFurnitureItem,
+  ): Promise<FurnitureItem> {
+    const existingItem = await this.furnitureModel
+      .findByIdAndUpdate(id, item, { new: true, runValidators: true })
+      .exec();
 
-    existingItem.name = item.name ?? existingItem.name;
-    existingItem.room = item.room ?? existingItem.room;
-    existingItem.material = item.material ?? existingItem.material;
-    existingItem.price = item.price ?? existingItem.price;
-    existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.updatedAt = new Date().toISOString();
-
-    return existingItem;
+    return this.requireFurnitureItem(existingItem, id);
   }
 
-  removeFurnitureItem(id: number): FurnitureItem {
-    const index = this.items.findIndex((item) => item.id === id);
+  async findFurnitureByID(id: string): Promise<FurnitureItem> {
+    const item = await this.furnitureModel.findById(id).exec();
 
-    if (index === -1) {
-      throw new NotFoundException(`Furniture item ${id} was not found`);
+    return this.requireFurnitureItem(item, id);
+  }
+
+  async randomFurnitureItem(): Promise<FurnitureItem> {
+    const items = await this.furnitureModel.find().exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No furniture items found');
     }
 
-    const [removedItem] = this.items.splice(index, 1);
-
-    return removedItem;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
   }
 
-  private findFurnitureItemById(id: number): FurnitureItem {
-    const item = this.items.find((item) => item.id === id);
+  async removeFurnitureItem(id: string): Promise<FurnitureItem> {
+    const removedItem = await this.furnitureModel.findByIdAndDelete(id).exec();
 
+    return this.requireFurnitureItem(removedItem, id);
+  }
+
+  private requireFurnitureItem(
+    item: FurnitureDocument | null,
+    id: string,
+  ): FurnitureItem {
     if (!item) {
       throw new NotFoundException(`Furniture item ${id} was not found`);
     }

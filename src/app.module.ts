@@ -13,19 +13,24 @@ const databaseImports =
     ? []
     : [
         MongooseModule.forRoot(
-          'mongodb+srv://new-user:4ip72vondyDBCy2c@cluster0.s0upaf7.mongodb.net/Final',
+          process.env.MONGODB_URI ??
+            'mongodb+srv://new-user:4ip72vondyDBCy2c@cluster0.s0upaf7.mongodb.net/Final',
         ),
       ];
 
+const featureImports =
+  process.env.NODE_ENV === 'test'
+    ? []
+    : [
+        ProduceFoodModule,
+        TechModule,
+        ClothingModule,
+        LifestyleModule,
+        FurnitureModule,
+      ];
+
 @Module({
-  imports: [
-    ...databaseImports,
-    ProduceFoodModule,
-    TechModule,
-    ClothingModule,
-    LifestyleModule,
-    FurnitureModule,
-  ],
+  imports: [...databaseImports, ...featureImports],
   controllers: [AppController],
   providers: [AppService],
 })

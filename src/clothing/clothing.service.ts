@@ -1,67 +1,69 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   CreateClothingItem,
+  ClothingDocument,
   ClothingItem,
   UpdateClothingItem,
 } from './clothing.model';
 
 @Injectable()
 export class ClothingService {
-  private readonly items: ClothingItem[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectModel(ClothingItem.name)
+    private readonly clothingModel: Model<ClothingDocument>,
+  ) {}
 
-  findAllClothingItems(): ClothingItem[] {
-    return this.items;
+  findAllClothingItems(): Promise<ClothingItem[]> {
+    return this.clothingModel.find().exec();
   }
 
-  createClothingItem(item: CreateClothingItem): ClothingItem {
-    const now = new Date().toISOString();
-    const newItem: ClothingItem = {
-      id: this.nextId,
+  async createClothingItem(item: CreateClothingItem): Promise<ClothingItem> {
+    return this.clothingModel.create({
       department: 'clothing',
-      name: item.name,
-      size: item.size,
-      color: item.color,
-      price: item.price,
-      inStock: item.inStock,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.nextId += 1;
-    this.items.push(newItem);
-
-    return newItem;
+      ...item,
+    });
   }
 
-  updateClothingItem(id: number, item: UpdateClothingItem): ClothingItem {
-    const existingItem = this.findClothingItemById(id);
+  async updateClothingItem(
+    id: string,
+    item: UpdateClothingItem,
+  ): Promise<ClothingItem> {
+    const existingItem = await this.clothingModel
+      .findByIdAndUpdate(id, item, { new: true, runValidators: true })
+      .exec();
 
-    existingItem.name = item.name ?? existingItem.name;
-    existingItem.size = item.size ?? existingItem.size;
-    existingItem.color = item.color ?? existingItem.color;
-    existingItem.price = item.price ?? existingItem.price;
-    existingItem.inStock = item.inStock ?? existingItem.inStock;
-    existingItem.updatedAt = new Date().toISOString();
-
-    return existingItem;
+    return this.requireClothingItem(existingItem, id);
   }
 
-  removeClothingItem(id: number): ClothingItem {
-    const index = this.items.findIndex((item) => item.id === id);
+  async findClothingByID(id: string): Promise<ClothingItem> {
+    const item = await this.clothingModel.findById(id).exec();
 
-    if (index === -1) {
-      throw new NotFoundException(`Clothing item ${id} was not found`);
+    return this.requireClothingItem(item, id);
+  }
+
+  async RandomClothingItem(): Promise<ClothingItem> {
+    const items = await this.clothingModel.find().exec();
+
+    if (items.length === 0) {
+      throw new NotFoundException('No clothing items found');
     }
 
-    const [removedItem] = this.items.splice(index, 1);
-
-    return removedItem;
+    const randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
   }
 
-  private findClothingItemById(id: number): ClothingItem {
-    const item = this.items.find((item) => item.id === id);
+  async removeClothingItem(id: string): Promise<ClothingItem> {
+    const removedItem = await this.clothingModel.findByIdAndDelete(id).exec();
 
+    return this.requireClothingItem(removedItem, id);
+  }
+
+  private requireClothingItem(
+    item: ClothingDocument | null,
+    id: string,
+  ): ClothingItem {
     if (!item) {
       throw new NotFoundException(`Clothing item ${id} was not found`);
     }

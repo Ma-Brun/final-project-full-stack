@@ -19,12 +19,24 @@ export class ProduceFoodController {
   constructor(private readonly produceFoodService: ProduceFoodService) {}
 
   @Get()
-  findAllProduceFoodItems(): ProduceFoodItem[] {
+  findAllProduceFoodItems(): Promise<ProduceFoodItem[]> {
     return this.produceFoodService.findAllProduceFoodItems();
   }
 
+  @Get('random')
+  getRandomProduceFoodItem(): Promise<ProduceFoodItem> {
+    return this.produceFoodService.randomProduceFoodItem();
+  }
+
+  @Get(':id')
+  findProduceFoodByID(@Param('id') id: string): Promise<ProduceFoodItem> {
+    return this.produceFoodService.findProduceFoodByID(id);
+  }
+
   @Post()
-  createProduceFoodItem(@Body() item: CreateProduceFoodItem): ProduceFoodItem {
+  createProduceFoodItem(
+    @Body() item: CreateProduceFoodItem,
+  ): Promise<ProduceFoodItem> {
     return this.produceFoodService.createProduceFoodItem(item);
   }
 
@@ -32,12 +44,12 @@ export class ProduceFoodController {
   update(
     @Param('id') id: string,
     @Body() item: UpdateProduceFoodItem,
-  ): ProduceFoodItem {
-    return this.produceFoodService.updateProduceFoodItem(Number(id), item);
+  ): Promise<ProduceFoodItem> {
+    return this.produceFoodService.updateProduceFoodItem(id, item);
   }
 
   @Delete(':id')
-  removeProduceFoodItem(@Param('id') id: string): ProduceFoodItem {
-    return this.produceFoodService.removeProduceFoodItem(Number(id));
+  removeProduceFoodItem(@Param('id') id: string): Promise<ProduceFoodItem> {
+    return this.produceFoodService.removeProduceFoodItem(id);
   }
 }

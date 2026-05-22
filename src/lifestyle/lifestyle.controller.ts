@@ -19,12 +19,22 @@ export class LifestyleController {
   constructor(private readonly lifestyleService: LifestyleService) {}
 
   @Get()
-  findAllLifestyleItems(): LifestyleItem[] {
+  findAllLifestyleItems(): Promise<LifestyleItem[]> {
     return this.lifestyleService.findAllLifestyleItems();
   }
 
+  @Get('random')
+  getRandomLifestyleItem(): Promise<LifestyleItem> {
+    return this.lifestyleService.randomLifestyleItem();
+  }
+
+  @Get(':id')
+  findLifestyleByID(@Param('id') id: string): Promise<LifestyleItem> {
+    return this.lifestyleService.findLifestyleByID(id);
+  }
+
   @Post()
-  createLifestyleItem(@Body() item: CreateLifestyleItem): LifestyleItem {
+  createLifestyleItem(@Body() item: CreateLifestyleItem): Promise<LifestyleItem> {
     return this.lifestyleService.createLifestyleItem(item);
   }
 
@@ -32,12 +42,12 @@ export class LifestyleController {
   update(
     @Param('id') id: string,
     @Body() item: UpdateLifestyleItem,
-  ): LifestyleItem {
-    return this.lifestyleService.updateLifestyleItem(Number(id), item);
+  ): Promise<LifestyleItem> {
+    return this.lifestyleService.updateLifestyleItem(id, item);
   }
 
   @Delete(':id')
-  removeLifestyleItem(@Param('id') id: string): LifestyleItem {
-    return this.lifestyleService.removeLifestyleItem(Number(id));
+  removeLifestyleItem(@Param('id') id: string): Promise<LifestyleItem> {
+    return this.lifestyleService.removeLifestyleItem(id);
   }
 }

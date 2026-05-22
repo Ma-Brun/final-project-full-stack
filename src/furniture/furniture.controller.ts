@@ -19,12 +19,22 @@ export class FurnitureController {
   constructor(private readonly furnitureService: FurnitureService) {}
 
   @Get()
-  findAllFurnitureItems(): FurnitureItem[] {
+  findAllFurnitureItems(): Promise<FurnitureItem[]> {
     return this.furnitureService.findAllFurnitureItems();
   }
 
+  @Get('random')
+  getRandomFurnitureItem(): Promise<FurnitureItem> {
+    return this.furnitureService.randomFurnitureItem();
+  }
+
+  @Get(':id')
+  findFurnitureByID(@Param('id') id: string): Promise<FurnitureItem> {
+    return this.furnitureService.findFurnitureByID(id);
+  }
+
   @Post()
-  createFurnitureItem(@Body() item: CreateFurnitureItem): FurnitureItem {
+  createFurnitureItem(@Body() item: CreateFurnitureItem): Promise<FurnitureItem> {
     return this.furnitureService.createFurnitureItem(item);
   }
 
@@ -32,12 +42,12 @@ export class FurnitureController {
   update(
     @Param('id') id: string,
     @Body() item: UpdateFurnitureItem,
-  ): FurnitureItem {
-    return this.furnitureService.updateFurnitureItem(Number(id), item);
+  ): Promise<FurnitureItem> {
+    return this.furnitureService.updateFurnitureItem(id, item);
   }
 
   @Delete(':id')
-  removeFurnitureItem(@Param('id') id: string): FurnitureItem {
-    return this.furnitureService.removeFurnitureItem(Number(id));
+  removeFurnitureItem(@Param('id') id: string): Promise<FurnitureItem> {
+    return this.furnitureService.removeFurnitureItem(id);
   }
 }
