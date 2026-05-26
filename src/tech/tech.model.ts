@@ -32,6 +32,7 @@ export const TechSchema = SchemaFactory.createForClass(TechItem);
 
 TechSchema.set('toJSON', {
   virtuals: true,
+  // Formats tech documents for JSON.
   transform: (_document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete (returnedObject as { _id?: unknown })._id;

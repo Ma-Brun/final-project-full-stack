@@ -10,15 +10,18 @@ import {
 
 @Injectable()
 export class LifestyleService {
+  // Connects this service to lifestyle data.
   constructor(
     @InjectModel(LifestyleItem.name)
     private readonly lifestyleModel: Model<LifestyleDocument>,
   ) {}
 
+  // Finds all lifestyle items.
   findAllLifestyleItems(): Promise<LifestyleItem[]> {
     return this.lifestyleModel.find().exec();
   }
 
+  // Creates one lifestyle item.
   async createLifestyleItem(item: CreateLifestyleItem): Promise<LifestyleItem> {
     return this.lifestyleModel.create({
       department: 'lifestyle',
@@ -26,6 +29,7 @@ export class LifestyleService {
     });
   }
 
+  // Updates one lifestyle item by ID.
   async updateLifestyleItem(
     id: string,
     item: UpdateLifestyleItem,
@@ -37,6 +41,7 @@ export class LifestyleService {
     return this.requireLifestyleItem(existingItem, id);
   }
 
+  // Updates lifestyle items by name.
   async updateLifestyleItemsByName(
     name: string,
     item: UpdateLifestyleItem,
@@ -54,12 +59,14 @@ export class LifestyleService {
     return this.lifestyleModel.find({ name: item.name ?? name }).exec();
   }
 
+  // Finds one lifestyle item by ID.
   async findLifestyleByID(id: string): Promise<LifestyleItem> {
     const item = await this.lifestyleModel.findById(id).exec();
 
     return this.requireLifestyleItem(item, id);
   }
 
+  // Finds one random lifestyle item.
   async randomLifestyleItem(): Promise<LifestyleItem> {
     const items = await this.lifestyleModel.find().exec();
 
@@ -71,6 +78,7 @@ export class LifestyleService {
     return items[randomIndex];
   }
 
+  // Finds lifestyle items by name.
   async findLifestyleByName(name: string): Promise<LifestyleItem[]> {
     const items = await this.lifestyleModel.find({ name }).exec();
 
@@ -81,6 +89,7 @@ export class LifestyleService {
     return items;
   }
 
+  // Finds lifestyle items in stock.
   async findInStockLifestyleItems(): Promise<LifestyleItem[]> {
     const items = await this.lifestyleModel.find({ inStock: true }).exec();
 
@@ -91,12 +100,14 @@ export class LifestyleService {
     return items;
   }
 
+  // Deletes one lifestyle item by ID.
   async removeLifestyleItem(id: string): Promise<LifestyleItem> {
     const removedItem = await this.lifestyleModel.findByIdAndDelete(id).exec();
 
     return this.requireLifestyleItem(removedItem, id);
   }
 
+  // Deletes lifestyle items by name.
   async removeLifestyleItemsByName(name: string): Promise<LifestyleItem[]> {
     const removedItems = await this.lifestyleModel.find({ name }).exec();
 
@@ -109,6 +120,7 @@ export class LifestyleService {
     return removedItems;
   }
 
+  // Throws if a lifestyle item is missing.
   private requireLifestyleItem(
     item: LifestyleDocument | null,
     id: string,

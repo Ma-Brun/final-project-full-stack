@@ -7,6 +7,14 @@ import { ClothingModule } from './clothing/clothing.module';
 import { LifestyleModule } from './lifestyle/lifestyle.module';
 import { FurnitureModule } from './furniture/furniture.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ClothingItem, ClothingSchema } from './clothing/clothing.model';
+import { FurnitureItem, FurnitureSchema } from './furniture/furniture.model';
+import {
+  ProduceFoodItem,
+  ProduceFoodSchema,
+} from './produce-food/produce-food.model';
+import { LifestyleItem, LifestyleSchema } from './lifestyle/lifestyle.model';
+import { TechItem, TechSchema } from './tech/tech.model';
 
 const databaseImports =
   process.env.NODE_ENV === 'test'
@@ -29,8 +37,21 @@ const featureImports =
         FurnitureModule,
       ];
 
+const storeSearchImports =
+  process.env.NODE_ENV === 'test'
+    ? []
+    : [
+        MongooseModule.forFeature([
+          { name: ClothingItem.name, schema: ClothingSchema },
+          { name: FurnitureItem.name, schema: FurnitureSchema },
+          { name: ProduceFoodItem.name, schema: ProduceFoodSchema },
+          { name: LifestyleItem.name, schema: LifestyleSchema },
+          { name: TechItem.name, schema: TechSchema },
+        ]),
+      ];
+
 @Module({
-  imports: [...databaseImports, ...featureImports],
+  imports: [...databaseImports, ...storeSearchImports, ...featureImports],
   controllers: [AppController],
   providers: [AppService],
 })

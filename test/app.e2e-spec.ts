@@ -7,6 +7,7 @@ import { AppModule } from './../src/app.module';
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
+  // Starts the test app before each test.
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -16,6 +17,7 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
+  // Checks the root route response.
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/')
@@ -33,6 +35,7 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  // Closes the test app after each test.
   afterEach(async () => {
     await app.close();
   });

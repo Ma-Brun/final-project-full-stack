@@ -10,15 +10,18 @@ import {
 
 @Injectable()
 export class ClothingService {
+  // Connects this service to clothing data.
   constructor(
     @InjectModel(ClothingItem.name)
     private readonly clothingModel: Model<ClothingDocument>,
   ) {}
 
+  // Finds all clothing items.
   findAllClothingItems(): Promise<ClothingItem[]> {
     return this.clothingModel.find().exec();
   }
 
+  // Creates one clothing item.
   async createClothingItem(item: CreateClothingItem): Promise<ClothingItem> {
     return this.clothingModel.create({
       department: 'clothing',
@@ -26,6 +29,7 @@ export class ClothingService {
     });
   }
 
+  // Updates one clothing item by ID.
   async updateClothingItem(
     id: string,
     item: UpdateClothingItem,
@@ -37,6 +41,7 @@ export class ClothingService {
     return this.requireClothingItem(existingItem, id);
   }
 
+  // Updates clothing items by name.
   async updateClothingItemsByName(
     name: string,
     item: UpdateClothingItem,
@@ -54,12 +59,14 @@ export class ClothingService {
     return this.clothingModel.find({ name: item.name ?? name }).exec();
   }
 
+  // Finds one clothing item by ID.
   async findClothingByID(id: string): Promise<ClothingItem> {
     const item = await this.clothingModel.findById(id).exec();
 
     return this.requireClothingItem(item, id);
   }
 
+  // Finds one random clothing item.
   async RandomClothingItem(): Promise<ClothingItem> {
     const items = await this.clothingModel.find().exec();
 
@@ -71,6 +78,7 @@ export class ClothingService {
     return items[randomIndex];
   }
 
+  // Finds clothing items by name.
   async findClothingByName(name: string): Promise<ClothingItem[]> {
     const items = await this.clothingModel.find({ name }).exec();
 
@@ -81,6 +89,7 @@ export class ClothingService {
     return items;
   }
 
+  // Finds clothing items in stock.
   async findInStockClothingItems(): Promise<ClothingItem[]> {
     const items = await this.clothingModel.find({ inStock: true }).exec();
 
@@ -91,12 +100,14 @@ export class ClothingService {
     return items;
   }
 
+  // Deletes one clothing item by ID.
   async removeClothingItem(id: string): Promise<ClothingItem> {
     const removedItem = await this.clothingModel.findByIdAndDelete(id).exec();
 
     return this.requireClothingItem(removedItem, id);
   }
 
+  // Deletes clothing items by name.
   async removeClothingItemsByName(name: string): Promise<ClothingItem[]> {
     const removedItems = await this.clothingModel.find({ name }).exec();
 
@@ -109,6 +120,7 @@ export class ClothingService {
     return removedItems;
   }
 
+  // Throws if a clothing item is missing.
   private requireClothingItem(
     item: ClothingDocument | null,
     id: string,

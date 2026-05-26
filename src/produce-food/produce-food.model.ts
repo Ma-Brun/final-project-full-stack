@@ -29,6 +29,7 @@ export const ProduceFoodSchema = SchemaFactory.createForClass(ProduceFoodItem);
 
 ProduceFoodSchema.set('toJSON', {
   virtuals: true,
+  // Formats produce-food documents for JSON.
   transform: (_document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete (returnedObject as { _id?: unknown })._id;

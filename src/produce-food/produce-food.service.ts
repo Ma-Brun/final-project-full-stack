@@ -10,15 +10,18 @@ import {
 
 @Injectable()
 export class ProduceFoodService {
+  // Connects this service to produce-food data.
   constructor(
     @InjectModel(ProduceFoodItem.name)
     private readonly produceFoodModel: Model<ProduceFoodDocument>,
   ) {}
 
+  // Finds all produce-food items.
   findAllProduceFoodItems(): Promise<ProduceFoodItem[]> {
     return this.produceFoodModel.find().exec();
   }
 
+  // Creates one produce-food item.
   async createProduceFoodItem(
     item: CreateProduceFoodItem,
   ): Promise<ProduceFoodItem> {
@@ -28,6 +31,7 @@ export class ProduceFoodService {
     });
   }
 
+  // Updates one produce-food item by ID.
   async updateProduceFoodItem(
     id: string,
     item: UpdateProduceFoodItem,
@@ -39,6 +43,7 @@ export class ProduceFoodService {
     return this.requireProduceFoodItem(existingItem, id);
   }
 
+  // Updates produce-food items by name.
   async updateProduceFoodItemsByName(
     name: string,
     item: UpdateProduceFoodItem,
@@ -58,12 +63,14 @@ export class ProduceFoodService {
     return this.produceFoodModel.find({ name: item.name ?? name }).exec();
   }
 
+  // Finds one produce-food item by ID.
   async findProduceFoodByID(id: string): Promise<ProduceFoodItem> {
     const item = await this.produceFoodModel.findById(id).exec();
 
     return this.requireProduceFoodItem(item, id);
   }
 
+  // Finds one random produce-food item.
   async randomProduceFoodItem(): Promise<ProduceFoodItem> {
     const items = await this.produceFoodModel.find().exec();
 
@@ -75,6 +82,7 @@ export class ProduceFoodService {
     return items[randomIndex];
   }
 
+  // Finds produce-food items by name.
   async findProduceFoodByName(name: string): Promise<ProduceFoodItem[]> {
     const items = await this.produceFoodModel.find({ name }).exec();
 
@@ -87,6 +95,7 @@ export class ProduceFoodService {
     return items;
   }
 
+  // Finds produce-food items in stock.
   async findInStockProduceFoodItems(): Promise<ProduceFoodItem[]> {
     const items = await this.produceFoodModel.find({ inStock: true }).exec();
 
@@ -97,6 +106,7 @@ export class ProduceFoodService {
     return items;
   }
 
+  // Deletes one produce-food item by ID.
   async removeProduceFoodItem(id: string): Promise<ProduceFoodItem> {
     const removedItem = await this.produceFoodModel
       .findByIdAndDelete(id)
@@ -105,6 +115,7 @@ export class ProduceFoodService {
     return this.requireProduceFoodItem(removedItem, id);
   }
 
+  // Deletes produce-food items by name.
   async removeProduceFoodItemsByName(
     name: string,
   ): Promise<ProduceFoodItem[]> {
@@ -121,6 +132,7 @@ export class ProduceFoodService {
     return removedItems;
   }
 
+  // Throws if a produce-food item is missing.
   private requireProduceFoodItem(
     item: ProduceFoodDocument | null,
     id: string,

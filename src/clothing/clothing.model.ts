@@ -32,6 +32,7 @@ export const ClothingSchema = SchemaFactory.createForClass(ClothingItem);
 
 ClothingSchema.set('toJSON', {
   virtuals: true,
+  // Formats clothing documents for JSON.
   transform: (_document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete (returnedObject as { _id?: unknown })._id;

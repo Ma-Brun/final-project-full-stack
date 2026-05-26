@@ -32,6 +32,7 @@ export const FurnitureSchema = SchemaFactory.createForClass(FurnitureItem);
 
 FurnitureSchema.set('toJSON', {
   virtuals: true,
+  // Formats furniture documents for JSON.
   transform: (_document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete (returnedObject as { _id?: unknown })._id;

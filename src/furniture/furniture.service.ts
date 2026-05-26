@@ -10,15 +10,18 @@ import {
 
 @Injectable()
 export class FurnitureService {
+  // Connects this service to furniture data.
   constructor(
     @InjectModel(FurnitureItem.name)
     private readonly furnitureModel: Model<FurnitureDocument>,
   ) {}
 
+  // Finds all furniture items.
   findAllFurnitureItems(): Promise<FurnitureItem[]> {
     return this.furnitureModel.find().exec();
   }
 
+  // Creates one furniture item.
   async createFurnitureItem(item: CreateFurnitureItem): Promise<FurnitureItem> {
     return this.furnitureModel.create({
       department: 'furniture',
@@ -26,6 +29,7 @@ export class FurnitureService {
     });
   }
 
+  // Updates one furniture item by ID.
   async updateFurnitureItem(
     id: string,
     item: UpdateFurnitureItem,
@@ -37,6 +41,7 @@ export class FurnitureService {
     return this.requireFurnitureItem(existingItem, id);
   }
 
+  // Updates furniture items by name.
   async updateFurnitureItemsByName(
     name: string,
     item: UpdateFurnitureItem,
@@ -54,12 +59,14 @@ export class FurnitureService {
     return this.furnitureModel.find({ name: item.name ?? name }).exec();
   }
 
+  // Finds one furniture item by ID.
   async findFurnitureByID(id: string): Promise<FurnitureItem> {
     const item = await this.furnitureModel.findById(id).exec();
 
     return this.requireFurnitureItem(item, id);
   }
 
+  // Finds one random furniture item.
   async randomFurnitureItem(): Promise<FurnitureItem> {
     const items = await this.furnitureModel.find().exec();
 
@@ -71,6 +78,7 @@ export class FurnitureService {
     return items[randomIndex];
   }
 
+  // Finds furniture items by name.
   async findFurnitureByName(name: string): Promise<FurnitureItem[]> {
     const items = await this.furnitureModel.find({ name }).exec();
 
@@ -81,6 +89,7 @@ export class FurnitureService {
     return items;
   }
 
+  // Finds furniture items in stock.
   async findInStockFurnitureItems(): Promise<FurnitureItem[]> {
     const items = await this.furnitureModel.find({ inStock: true }).exec();
 
@@ -91,12 +100,14 @@ export class FurnitureService {
     return items;
   }
 
+  // Deletes one furniture item by ID.
   async removeFurnitureItem(id: string): Promise<FurnitureItem> {
     const removedItem = await this.furnitureModel.findByIdAndDelete(id).exec();
 
     return this.requireFurnitureItem(removedItem, id);
   }
 
+  // Deletes furniture items by name.
   async removeFurnitureItemsByName(name: string): Promise<FurnitureItem[]> {
     const removedItems = await this.furnitureModel.find({ name }).exec();
 
@@ -109,6 +120,7 @@ export class FurnitureService {
     return removedItems;
   }
 
+  // Throws if a furniture item is missing.
   private requireFurnitureItem(
     item: FurnitureDocument | null,
     id: string,
